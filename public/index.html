@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Futuristic Blog</title>
+  <link rel="stylesheet" href="/styles.css">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@400;500&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <h1>🌌 Futuristic Blog</h1>
+    <p>Create, view, update, and delete posts 🚀</p>
+
+    <div class="blog-form">
+      <input type="text" id="title" placeholder="Title">
+      <input type="text" id="author" placeholder="Author">
+      <textarea id="body" placeholder="Body"></textarea>
+      <button id="createBtn">Create Post</button>
+    </div>
+
+    <h2>All Posts</h2>
+    <div id="posts"></div>
+
+    <footer>
+      <p>Designed by Dominion Precious | Portfolio Ready</p>
+    </footer>
+  </div>
+
+<script>
+  const API_URL = '/api/blogs';
+
+  // Elements
+  const postsDiv = document.getElementById('posts');
+  const createBtn = document.getElementById('createBtn');
+
+  // Fetch and display posts
+  async function fetchPosts() {
+    const res = await fetch(API_URL);
+    const data = await res.json();
+    postsDiv.innerHTML = '';
+    data.forEach(post => {
+      const div = document.createElement('div');
+      div.className = 'post';
+      div.innerHTML = `
+        <h3>${post.title}</h3>
+        <p>${post.body}</p>
+        <p><em>Author: ${post.author}</em></p>
+        <button onclick="deletePost('${post._id}')">Delete</button>
+      `;
+      postsDiv.appendChild(div);
+    });
+  }
+
+  // Create new post
+  createBtn.addEventListener('click', async () => {
+    const title = document.getElementById('title').value;
+    const body = document.getElementById('body').value;
+    const author = document.getElementById('author').value || "Anonymous";
+
+    if (!title || !body) return alert('Title and Body are required');
+
+    await fetch(API_URL, {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ title, body, author })
+    });
+
+    document.getElementById('title').value = '';
+    document.getElementById('body').value = '';
+    document.getElementById('author').value = '';
+    fetchPosts();
+  });
+
+  // Delete post
+  async function deletePost(id) {
+    await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
+    fetchPosts();
+  }
+
+  // Initial fetch
+  fetchPosts();
+</script>
+</body>
+</html>
